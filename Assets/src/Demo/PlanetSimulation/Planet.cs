@@ -7,39 +7,57 @@ namespace src.Demo.PlanetSimulation
 {
     public class Planet
     {
-        private GameObject _sphere;
         public static readonly double G = 6.67E-11;
         public static readonly float OnePoint = 84400000;
+        private GameObject _gameObject;
         private bool _shouldDrawLine;
         private float _radius;
-
+        private LinkedList<Vector3> _positions;
+        private LineRenderer _lineRenderer;
+        private static readonly Material DefaultPlanetMaterial = Resources.Load<Material>("Materials/Planet");
+        private static readonly Material DefaultLineMaterial = Resources.Load<Material>("Materials/Line");
+        
+        
+        public GameObject GameObject => _gameObject;
         public double Mass { get; set; }
         public Vector3 Speed { get; set; }
         public Vector3 Pos { get; set; }
-        public GameObject gameObject;
-
         public bool ShouldDestroy { get; set; } = false;
         public bool IsDestroyable { get; set; } = true;
-        public bool IsReturning { get; set; } = false;
 
-        public Planet(double mass, float x, float y, bool shouldDrawLine = false)
+        public Planet(double mass, float x, float y, Material mat = null, bool shouldDrawLine = false)
         {
-            _sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            _sphere.GetComponent<SphereCollider>().isTrigger = true;
-            _sphere.AddComponent<PlanetCollision>();
-            _sphere.AddComponent<Rigidbody>();
-            _sphere.GetComponent<Rigidbody>().useGravity = false;
-            _sphere.GetComponent<PlanetCollision>().Planet = this;
+            if (mat == null)
+            {
+                mat = DefaultPlanetMaterial;
+            }
             
+            _gameObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            _gameObject.GetComponent<SphereCollider>().isTrigger = true;
+            _gameObject.AddComponent<PlanetCollision>();
+            _gameObject.AddComponent<Rigidbody>();
+            _gameObject.GetComponent<Rigidbody>().useGravity = false;
+            _gameObject.GetComponent<PlanetCollision>().Planet = this;
+            _gameObject.GetComponent<MeshRenderer>().material = mat;
+
             _shouldDrawLine = shouldDrawLine;
             Mass = mass;
 
             UpdateRadius();
-            
-            Pos = new Vector3(x, y);
-            _sphere.transform.position = Pos/OnePoint;
-        }
 
+            Pos = new Vector3(x, y);
+            _gameObject.transform.position = Pos / OnePoint;
+            
+            
+            _lineRenderer = _gameObject.AddComponent<LineRenderer>();
+            _positions = new LinkedList<Vector3>();
+            _lineRenderer.startColor = Color.red;
+            _lineRenderer.endColor = Color.red;
+            Material whiteDiffuseMat = DefaultLineMaterial;
+            _lineRenderer.material = whiteDiffuseMat;
+            _lineRenderer.endWidth = 0.1f;
+            _lineRenderer.startWidth = 0.05f;
+        }
         
         public void UpdateRadius()
         {
@@ -50,70 +68,68 @@ namespace src.Demo.PlanetSimulation
                 massPower++;
                 tempMass /= 10;
             }
-            
-            _radius = 173700*massPower;
-            
-            //fake size
-            _sphere.transform.localScale = new Vector3(_radius, _radius, _radius)/OnePoint*30;
-        }
 
+            _radius = 173700 * massPower;
+
+            //fake size
+            _gameObject.transform.localScale = new Vector3(_radius, _radius, _radius) / OnePoint * 30;
+        }
+        
         public bool IsInCameraView()
         {
-            if (_sphere.gameObject == null)
+            if (_gameObject.gameObject == null)
             {
                 return true;
             }
-            
-            var position = _sphere.transform.position;
+
+            var position = _gameObject.transform.position;
 
             var camPos = Camera.main.transform.position;
-            var vertExtent = Camera.main.orthographicSize;    
+            var vertExtent = Camera.main.orthographicSize;
             var horzExtent = vertExtent * Screen.width / Screen.height;
             return (Mathf.Abs(camPos.y - position.y) < vertExtent && Mathf.Abs(camPos.x - position.x) < horzExtent);
         }
         
-        private Planet() { }
-
-        private List<Vector3> _positions;
-        private LineRenderer _lineRenderer;
-
         public void Update()
         {
-            if (_sphere.gameObject != null)
+            if (_gameObject.gameObject != null)
             {
-                _sphere.transform.position = Pos / OnePoint;
+                _gameObject.transform.position = Pos / OnePoint;
 
                 if (_shouldDrawLine)
                 {
-                    if (gameObject == null)
+                    _positions.AddLast(_gameObject.transform.position);
+
+                    if (_positions.Count >= 200)
                     {
-                        gameObject = new GameObject();
-                        _lineRenderer = gameObject.AddComponent<LineRenderer>();
-                        _positions = new List<Vector3>();
-                        _lineRenderer.endColor = Color.red;
-                        _lineRenderer.startColor = new Color(1, 0, 0, 0);
-                        _lineRenderer.endWidth = _lineRenderer.startWidth = 0.2f;
+                        _positions.Remove(_positions.First);
                     }
-
-                    _positions.Add(_sphere.transform.position);
-
+                    
                     _lineRenderer.positionCount = _positions.Count;
-                    for (int i = 0; i < _positions.Count; i++)
+
+                    int i = 0;
+                    foreach (var position in _positions)
                     {
-                        _lineRenderer.SetPosition(i, _positions[i]);
+                        _lineRenderer.SetPosition(i, position);
+                        ++i;
                     }
                 }
             }
         }
-        
+
         public void Disable()
         {
-            _sphere.SetActive(false);
+            _gameObject.SetActive(false);
         }
-        
+
         public void Enable()
         {
-            _sphere.SetActive(true);
+            _gameObject.SetActive(true);
+        }
+
+        public void Destroy()
+        {
+            UnityEngine.Object.Destroy(_gameObject);
         }
     }
 }

@@ -1,8 +1,7 @@
 ## Unity ##
 
 * linguist-vendored
-Assets/src/**/*.cs linguist-vendored=false
-Assets/Shaders/**/*.shader linguist-vendored=false
+*.cs linguist-vendored=false
 
 ##"/Assets/TextMesh Pro/*" linguist-vendored
 

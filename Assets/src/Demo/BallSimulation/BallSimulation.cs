@@ -4,7 +4,7 @@ namespace src.Demo.BallSimulation
 {
     public class BallSimulation: IDemo
     {
-        private GameObject prefabObj;
+        private GameObject _prefabPhysicBall;
         private Ball _ball;
         private GameObject _floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
         public void Start()
@@ -12,13 +12,12 @@ namespace src.Demo.BallSimulation
             _floor.transform.position = new Vector3(0, -6);
             _ball = new Ball(new Vector2(0, 2), new Vector2(0, 5));
             
-            prefabObj = GameObject.Instantiate(Resources.Load("Prefabs/PlatformSimulation", typeof(GameObject))) as GameObject;
+            _prefabPhysicBall = GameObject.Instantiate(Resources.Load("Prefabs/PlatformSimulation", typeof(GameObject))) as GameObject;
         }
 
-        public void Update()
+        public void Update(float dtime)
         {
             Vector3 acceleration = new Vector3(0, -9.81f);
-            float dtime = Time.deltaTime;
             _ball.Pos += dtime * _ball.Speed;
             _ball.Speed += dtime * acceleration;
 
@@ -35,17 +34,17 @@ namespace src.Demo.BallSimulation
         public void Disable()
         {
             _ball.Disable();
-            _floor.GetComponent<Renderer>().enabled = false;
+            _floor.SetActive(false);
             
-            prefabObj.SetActive(false);
+            _prefabPhysicBall.SetActive(false);
         }
 
         public void Enable()
         {
             _ball.Enable();
-            _floor.GetComponent<Renderer>().enabled = true;
+            _floor.SetActive(true);
             
-            prefabObj.SetActive(true);
+            _prefabPhysicBall.SetActive(true);
         }
     }
 }

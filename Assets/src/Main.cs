@@ -9,54 +9,44 @@ namespace src
 {
     public class Main : MonoBehaviour
     {
-        enum DemoType
+        private enum DemoType
         {
             Planets,
             Ball
         }
-
-        private DemoType[] _demoTypeVals;
-        private DemoType _demoType = DemoType.Planets;
-
-        private Dictionary<DemoType, IDemo> _demos;
-        void Start()
-        {
-            _demoTypeVals = Enum.GetValues(typeof(DemoType)) as DemoType[];
         
+        private DemoType _currDemo = DemoType.Planets;
+        private Dictionary<DemoType, IDemo> _demos;
+        private void Start()
+        {
             _demos = new Dictionary<DemoType, IDemo>();
-            _demos.Add(DemoType.Planets, new PlanetSimulation());
-            _demos[DemoType.Planets].Start();
-
+            
             _demos[DemoType.Ball] = new BallSimulation();
             _demos[DemoType.Ball].Start();
             _demos[DemoType.Ball].Disable();
+            
+            _demos[DemoType.Planets] = new PlanetSimulation();
+            _demos[DemoType.Planets].Start();
         }
 
-        void Update()
+        private void Update()
         {
-            DetDemo();
-            _demos[_demoType].Update();
+            SwitchDemo();
         }
 
-        void DetDemo()
+        private void FixedUpdate()
+        {
+            _demos[_currDemo].Update(Time.fixedDeltaTime);
+        }
+
+        void SwitchDemo()
         {
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
-                _demos[_demoType].Disable();
-                int index = Next(_demoTypeVals.Length);
-                _demoType = _demoTypeVals[index];
-                _demos[_demoType].Enable();
+                _demos[_currDemo].Disable();
+                _currDemo = _currDemo == DemoType.Ball ? DemoType.Planets : DemoType.Ball;
+                _demos[_currDemo].Enable();
             }
-        }
-
-        private int _curr = 0;
-        int Next(int max)
-        {
-            ++_curr;
-            if (_curr == max)
-                _curr = 0;
-        
-            return _curr;
         }
     }
 }
