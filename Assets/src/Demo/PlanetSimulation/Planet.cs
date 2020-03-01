@@ -11,8 +11,8 @@ namespace src.Demo.PlanetSimulation
         private static readonly Material DefaultLineMaterial = Resources.Load<Material>("Materials/Line");
         private readonly LineRenderer _lineRenderer;
         private readonly LinkedList<Vector3> _positions;
-        private float _radius;
         private readonly bool _shouldDrawLine;
+        private float _radius;
 
         public Planet(double mass, float x, float y, Material mat = null, bool shouldDrawLine = false)
         {
@@ -39,7 +39,7 @@ namespace src.Demo.PlanetSimulation
             _positions = new LinkedList<Vector3>();
             _lineRenderer.startColor = Color.red;
             _lineRenderer.endColor = Color.red;
-            var whiteDiffuseMat = DefaultLineMaterial;
+            Material whiteDiffuseMat = DefaultLineMaterial;
             _lineRenderer.material = whiteDiffuseMat;
             _lineRenderer.endWidth = 0.1f;
             _lineRenderer.startWidth = 0.05f;
@@ -56,8 +56,8 @@ namespace src.Demo.PlanetSimulation
 
         public void UpdateRadius()
         {
-            var massPower = 0;
-            var tempMass = Mass;
+            int massPower = 0;
+            double tempMass = Mass;
             while (tempMass > 1)
             {
                 massPower++;
@@ -74,11 +74,11 @@ namespace src.Demo.PlanetSimulation
         {
             if (GameObject.gameObject == null) return true;
 
-            var position = GameObject.transform.position;
+            Vector3 position = GameObject.transform.position;
 
-            var camPos = Camera.main.transform.position;
-            var vertExtent = Camera.main.orthographicSize;
-            var horzExtent = vertExtent * Screen.width / Screen.height;
+            Vector3 camPos = Camera.main.transform.position;
+            float vertExtent = Camera.main.orthographicSize;
+            float horzExtent = vertExtent * Screen.width / Screen.height;
             return Mathf.Abs(camPos.y - position.y) < vertExtent && Mathf.Abs(camPos.x - position.x) < horzExtent;
         }
 
@@ -96,8 +96,8 @@ namespace src.Demo.PlanetSimulation
 
                     _lineRenderer.positionCount = _positions.Count;
 
-                    var i = 0;
-                    foreach (var position in _positions)
+                    int i = 0;
+                    foreach (Vector3 position in _positions)
                     {
                         _lineRenderer.SetPosition(i, position);
                         ++i;

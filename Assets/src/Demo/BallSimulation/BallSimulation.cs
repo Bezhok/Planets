@@ -4,8 +4,8 @@ namespace src.Demo.BallSimulation
 {
     public class BallSimulation : IDemo
     {
-        private Ball _ball;
         private readonly GameObject _floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        private Ball _ball;
         private GameObject _prefabPhysicBall;
 
         public void Start()

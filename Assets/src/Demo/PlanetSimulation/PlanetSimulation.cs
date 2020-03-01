@@ -22,21 +22,21 @@ namespace src.Demo.PlanetSimulation
             _planets["planet"].Speed += new Vector3(1000f, 0);
 
             var keys = new List<string>();
-            foreach (var e in _planets)
+            foreach (KeyValuePair<string, Planet> e in _planets)
                 if (!e.Value.IsInCameraView())
                     keys.Add(e.Key);
 
-            foreach (var key in keys) _planets.Remove(key);
+            foreach (string key in keys) _planets.Remove(key);
         }
 
         public void Disable()
         {
-            foreach (var key in _planets) key.Value.Disable();
+            foreach (KeyValuePair<string, Planet> key in _planets) key.Value.Disable();
         }
 
         public void Enable()
         {
-            foreach (var key in _planets) key.Value.Enable();
+            foreach (KeyValuePair<string, Planet> key in _planets) key.Value.Enable();
         }
 
         public void Update(float dTime)
@@ -44,18 +44,18 @@ namespace src.Demo.PlanetSimulation
             dTime *= 86400 * 5;
             SystemMove(dTime);
 
-            for (var i = 0; i < _planets.Count; i++)
+            for (int i = 0; i < _planets.Count; i++)
             {
-                var speedSum = Vector3.zero;
+                Vector3 speedSum = Vector3.zero;
 
-                var first = _planets.ElementAt(i).Value;
-                for (var j = i + 1; j < _planets.Count; j++)
+                Planet first = _planets.ElementAt(i).Value;
+                for (int j = i + 1; j < _planets.Count; j++)
                 {
-                    var second = _planets.ElementAt(j).Value;
-                    var dist = Vector3.Distance(first.Pos, second.Pos);
+                    Planet second = _planets.ElementAt(j).Value;
+                    float dist = Vector3.Distance(first.Pos, second.Pos);
 
-                    var fBase = Planet.G / (dist * dist * dist);
-                    var sub = second.Pos - first.Pos;
+                    double fBase = Planet.G / (dist * dist * dist);
+                    Vector3 sub = second.Pos - first.Pos;
                     speedSum += (float) (second.Mass * fBase) * sub;
 
                     second.Speed += dTime * (float) (first.Mass * fBase) * -sub;
@@ -70,7 +70,7 @@ namespace src.Demo.PlanetSimulation
         private void SystemMove(float dTime)
         {
             var keys = new List<string>();
-            foreach (var e in _planets)
+            foreach (KeyValuePair<string, Planet> e in _planets)
             {
                 e.Value.Update();
 
@@ -88,7 +88,7 @@ namespace src.Demo.PlanetSimulation
                 }
             }
 
-            foreach (var key in keys) _planets.Remove(key);
+            foreach (string key in keys) _planets.Remove(key);
         }
 
         private void CreatePlanetOnMouse()
@@ -96,18 +96,18 @@ namespace src.Demo.PlanetSimulation
             var rand = new Random();
             if (Input.GetKeyDown(KeyCode.Mouse0))
             {
-                var pz = _camera.ScreenToWorldPoint(Input.mousePosition);
+                Vector3 pz = _camera.ScreenToWorldPoint(Input.mousePosition);
                 pz.z = 0;
                 pz *= Planet.OnePoint;
 
                 ++_lastPlanetIdx;
-                var massRand = rand.Next(10, 23);
-                var key = "Planet" + _lastPlanetIdx;
+                int massRand = rand.Next(10, 23);
+                string key = "Planet" + _lastPlanetIdx;
                 _planets[key] = new Planet(Math.Pow(10, massRand), pz.x, pz.y, null, true);
 
-                var vec = _planets["star"].Pos - pz;
+                Vector3 vec = _planets["star"].Pos - pz;
                 vec.Normalize();
-                var scale = rand.Next(500, 1000);
+                int scale = rand.Next(500, 1000);
                 _planets[key].Speed += new Vector3(-vec.y * scale, vec.x * scale);
             }
         }

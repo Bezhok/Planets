@@ -5,15 +5,9 @@ namespace src.Demo.PlanetSimulation
 {
     public class PlanetCollision : MonoBehaviour
     {
-        private Planet _planet;
+        public Planet Planet { get; set; }
 
-        public Planet Planet
-        {
-            get => _planet;
-            set => _planet = value;
-        }
-
-        void OnTriggerEnter(Collider other)
+        private void OnTriggerEnter(Collider other)
         {
             Planet otherPlanet;
             try
