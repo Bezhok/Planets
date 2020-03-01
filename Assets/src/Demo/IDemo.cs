@@ -3,7 +3,7 @@
     public interface IDemo
     {
         void Start();
-        void Update(float dtime);
+        void Update(float dTime);
         void Disable();
         void Enable();
     }
